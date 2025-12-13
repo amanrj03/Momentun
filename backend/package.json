@@ -1,0 +1,45 @@
+{
+  "name": "online-video-directory-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Online Video Directory",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "seed:creators": "ts-node scripts/seed-creators.ts",
+    "seed:viewers": "ts-node scripts/seed-viewers.ts",
+    "seed:all": "ts-node scripts/seed-all.ts",
+    "verify:creators": "ts-node scripts/verify-creators.ts",
+    "verify:viewers": "ts-node scripts/verify-viewers.ts",
+    "approve:videos": "ts-node scripts/approve-all-videos.ts",
+    "check:videos": "ts-node scripts/check-videos.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "@types/nodemailer": "^7.0.4",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.11",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.10.2",
+    "prisma": "^5.22.0",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.7.2"
+  }
+}

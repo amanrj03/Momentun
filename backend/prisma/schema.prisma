@@ -1,0 +1,185 @@
+// Prisma Schema for Online Video Directory
+// Run: npx prisma migrate dev --name init
+// Run: npx prisma generate
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Add your NeonDB connection string in .env
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum Role {
+  ADMIN
+  CREATOR
+  VIEWER
+}
+
+enum VideoStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ==========================================
+// MODELS
+// ==========================================
+
+// User - Core authentication model
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password_hash String
+  role          Role      @default(VIEWER)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Role-specific profiles (only one will be populated based on role)
+  adminProfile   AdminProfile?
+  creatorProfile CreatorProfile?
+  viewerProfile  ViewerProfile?
+
+  videos       Video[]        // Only for CREATOR role
+  likes        VideoLike[]    // Videos this user has liked
+  saves        VideoSave[]    // Videos this user has saved
+  watchHistory WatchHistory[] // Videos this user has watched
+
+  @@map("users")
+}
+
+// Admin Profile
+model AdminProfile {
+  id           String   @id @default(uuid())
+  userId       String   @unique @map("user_id")
+  full_name    String   // Validated: alphabets and spaces only
+  employee_id  String?
+  department   String?
+  phone_number String?
+  avatar_url   String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("admin_profiles")
+}
+
+// Creator Profile
+model CreatorProfile {
+  id            String   @id @default(uuid())
+  userId        String   @unique @map("user_id")
+  full_name     String   // Validated: alphabets and spaces only
+  channel_name  String   // Required: Channel name for creator branding
+  bio           String?
+  linkedin_url  String?
+  youtube_url   String?
+  website_url   String?
+  country       String?
+  avatar_url    String?
+  total_videos  Int      @default(0)
+  total_views   Int      @default(0)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("creator_profiles")
+}
+
+// Viewer Profile
+model ViewerProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique @map("user_id")
+  full_name       String   // Validated: alphabets and spaces only
+  display_name    String?
+  country         String?
+  interests       String[] // Array of interest tags
+  avatar_url      String?
+  watched_videos  Int      @default(0)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("viewer_profiles")
+}
+
+
+
+// Video - Core video content
+model Video {
+  id            String      @id @default(uuid())
+  title         String
+  description   String?
+  video_url     String      // Cloudinary URL
+  thumbnail_url String?     // Cloudinary URL
+  status        VideoStatus @default(PENDING)
+  views         Int         @default(0)
+  likes_count   Int         @default(0) // Total likes count
+  duration      Int?        // Duration in seconds
+  cloudinary_id String?     // Cloudinary public ID for management
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  uploaderId String @map("uploader_id")
+  uploader   User   @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
+
+
+
+  // Relations for user interactions
+  likes        VideoLike[]
+  saves        VideoSave[]
+  watchHistory WatchHistory[]
+
+  @@map("videos")
+}
+
+// Video Likes - Track which users liked which videos
+model VideoLike {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  videoId   String   @map("video_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId]) // Prevent duplicate likes
+  @@map("video_likes")
+}
+
+// Video Saves - Track which users saved which videos
+model VideoSave {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  videoId   String   @map("video_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId]) // Prevent duplicate saves
+  @@map("video_saves")
+}
+
+// Watch History - Track which users watched which videos
+model WatchHistory {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  videoId    String   @map("video_id")
+  watchedAt  DateTime @default(now()) @map("watched_at")
+  progress   Float?   // Watch progress (0.0 to 1.0)
+  completed  Boolean  @default(false) // Whether video was watched to completion
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId]) // One history entry per user per video (updates on rewatch)
+  @@map("watch_history")
+}
