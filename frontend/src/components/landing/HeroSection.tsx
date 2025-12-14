@@ -91,28 +91,22 @@ const HeroSection = () => {
         </div>
 
         {/* Hero Visual */}
-        <div className="mt-20 relative max-w-4xl mx-auto animate-scale-in animation-delay-600">
+        <div className="mt-20 mb-32 relative max-w-4xl mx-auto animate-scale-in animation-delay-600">
           <div className="relative aspect-video rounded-2xl overflow-hidden border border-border/50 shadow-2xl shadow-primary/10">
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent z-10" />
             
-            {/* Placeholder Video Preview */}
-            <div className="absolute inset-0 bg-gradient-to-br from-secondary via-card to-secondary">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-20 h-20 rounded-full bg-primary/20 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-primary/30 transition-all duration-300 hover:scale-110 group">
-                  <Play className="w-8 h-8 text-primary fill-primary group-hover:scale-110 transition-transform" />
-                </div>
-              </div>
-              
-              {/* Video Grid Preview */}
-              <div className="absolute inset-0 opacity-30 p-8 grid grid-cols-3 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <div 
-                    key={i} 
-                    className="bg-border/30 rounded-lg animate-pulse"
-                    style={{ animationDelay: `${i * 200}ms` }}
-                  />
-                ))}
+            {/* Demo Thumbnail */}
+            <img 
+              src="/landingPageDemo.png" 
+              alt="Momentum Platform Demo" 
+              className="w-full h-full object-cover"
+            />
+            
+            {/* Play Button Overlay */}
+            <div className="absolute inset-0 flex items-center justify-center z-20">
+              <div className="w-20 h-20 rounded-full bg-primary/20 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-primary/30 transition-all duration-300 hover:scale-110 group">
+                <Play className="w-8 h-8 text-primary fill-primary group-hover:scale-110 transition-transform" />
               </div>
             </div>
 
