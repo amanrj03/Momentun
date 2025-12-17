@@ -297,6 +297,10 @@ class ApiClient {
     });
   }
 
+  async getVideo(videoId: string) {
+    return this.request(`/videos/${videoId}`);
+  }
+
   // Analytics endpoints
   async getAnalytics(type: "admin" | "creator" | "viewer") {
     return this.request(`/analytics/${type}`);

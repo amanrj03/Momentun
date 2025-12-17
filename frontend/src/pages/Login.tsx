@@ -6,7 +6,7 @@ import { Eye, EyeOff, Loader2, Play, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { loginSchema, LoginInput } from "@/lib/validations";
 
@@ -14,7 +14,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -24,10 +23,10 @@ export default function Login() {
   const onSubmit = async (data: LoginInput) => {
     const result = await login(data.email, data.password);
     if (result.success) {
-      toast({ title: "Welcome back!", description: "Login successful" });
+      toast.success("✅ Welcome back! Login successful");
       navigate("/dashboard");
     } else {
-      toast({ title: "Login failed", description: result.error, variant: "destructive" });
+      toast.error(`❌ Login failed: ${result.error}`);
     }
   };
 

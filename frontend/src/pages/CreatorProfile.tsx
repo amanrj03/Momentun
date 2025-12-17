@@ -61,12 +61,12 @@ const CreatorProfile = () => {
       if (response.success && response.data) {
         setCreator(response.data as CreatorData);
       } else {
-        toast.error("Failed to load creator profile");
+        toast.error("❌ Failed to load creator profile");
         navigate("/dashboard");
       }
     } catch (error) {
       console.error("Error fetching creator data:", error);
-      toast.error("Failed to load creator profile");
+      toast.error("❌ Failed to load creator profile. Please check your internet connection.");
       navigate("/dashboard");
     } finally {
       setIsLoading(false);

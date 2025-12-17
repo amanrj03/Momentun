@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { OTPVerification } from "@/components/auth/OTPVerification";
 import { apiClient } from "@/lib/api";
 import { registerCreatorSchema, RegisterCreatorInput } from "@/lib/validations";
@@ -18,7 +18,6 @@ export default function RegisterCreator() {
   const [registrationData, setRegistrationData] = useState<RegisterCreatorInput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const form = useForm<RegisterCreatorInput>({
     resolver: zodResolver(registerCreatorSchema),
@@ -46,23 +45,12 @@ export default function RegisterCreator() {
       if (response.success) {
         setRegistrationData(data);
         setShowOtpVerification(true);
-        toast({ 
-          title: "OTP sent!", 
-          description: `We've sent a verification code to ${data.email}` 
-        });
+        toast.success(`✅ OTP sent! We've sent a verification code to ${data.email}`);
       } else {
-        toast({ 
-          title: "Registration failed", 
-          description: response.error || "Failed to send verification email", 
-          variant: "destructive" 
-        });
+        toast.error(`❌ Registration failed: ${response.error || "Failed to send verification email"}`);
       }
     } catch (error) {
-      toast({ 
-        title: "Registration failed", 
-        description: "Something went wrong. Please try again.", 
-        variant: "destructive" 
-      });
+      toast.error("❌ Registration failed: Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }

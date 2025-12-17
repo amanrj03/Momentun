@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { VideoCard } from "@/components/video/VideoCard";
-import { VideoPlayer } from "@/components/video/VideoPlayer";
 import { SearchBar } from "@/components/video/SearchBar";
 import { Header } from "@/components/layout/Header";
 import { Video } from "@/lib/types";
@@ -11,9 +11,9 @@ import { TrendingUp, Loader2, Video as VideoIcon } from "lucide-react";
 const categories = ["All", "Technology", "Healthcare", "Finance", "Education", "E-commerce", "SaaS", "AI/ML", "Blockchain", "Other"];
 
 export function UserPortal() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -272,7 +272,7 @@ export function UserPortal() {
                 >
                   <VideoCard
                     video={video}
-                    onClick={() => setSelectedVideo(video)}
+                    onClick={() => navigate(`/video/${video.id}`)}
                   />
                 </motion.div>
               ))}
@@ -312,7 +312,7 @@ export function UserPortal() {
                 >
                   <VideoCard
                     video={video}
-                    onClick={() => setSelectedVideo(video)}
+                    onClick={() => navigate(`/video/${video.id}`)}
                   />
                 </motion.div>
               ))}
@@ -364,13 +364,7 @@ export function UserPortal() {
         </section>
       </main>
 
-      {/* Video Player Modal */}
-      {selectedVideo && (
-        <VideoPlayer
-          video={selectedVideo}
-          onClose={() => setSelectedVideo(null)}
-        />
-      )}
+
     </div>
   );
 }

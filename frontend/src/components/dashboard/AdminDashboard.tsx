@@ -25,7 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -51,7 +51,6 @@ const AdminDashboard = () => {
   const [videoSearchQuery, setVideoSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     loadDashboardData();
@@ -99,11 +98,7 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load dashboard data",
-        variant: "destructive",
-      });
+      toast.error("❌ Failed to load dashboard data");
     } finally {
       setIsLoading(false);
     }
@@ -119,11 +114,7 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Failed to load creators:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load creators",
-        variant: "destructive",
-      });
+      toast.error("❌ Failed to load creators");
     } finally {
       setIsLoading(false);
     }
@@ -139,11 +130,7 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Failed to load viewers:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load viewers",
-        variant: "destructive",
-      });
+      toast.error("❌ Failed to load viewers");
     } finally {
       setIsLoading(false);
     }
@@ -159,11 +146,7 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Failed to load all videos:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load videos",
-        variant: "destructive",
-      });
+      toast.error("❌ Failed to load videos");
     } finally {
       setIsLoading(false);
     }
@@ -202,10 +185,7 @@ const AdminDashboard = () => {
       setUpdatingVideoId(videoId);
       const response = await apiClient.updateVideoStatus(videoId, action);
       if (response.success) {
-        toast({
-          title: "Success",
-          description: `Video ${action.toLowerCase()} successfully`,
-        });
+        toast.success(`✅ Video ${action.toLowerCase()} successfully`);
         
         if (currentView === 'videos') {
           setAllVideos(prevVideos => 
@@ -232,11 +212,7 @@ const AdminDashboard = () => {
         throw new Error(response.error);
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to ${action.toLowerCase()} video`,
-        variant: "destructive",
-      });
+      toast.error(`❌ Failed to ${action.toLowerCase()} video`);
     } finally {
       setUpdatingVideoId(null);
     }

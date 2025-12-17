@@ -31,7 +31,6 @@ import { toast } from "sonner";
 import { uploadToCloudinary, formatFileSize } from "@/lib/cloudinary";
 import { UploadProgress } from "@/lib/types";
 import { apiClient } from "@/lib/api";
-import { useToast } from "@/hooks/use-toast";
 import { 
   Upload as UploadIcon, 
   Video as VideoIcon, 
@@ -41,7 +40,6 @@ import {
   CheckCircle,
   AlertTriangle,
   Loader2,
-  Sparkles,
   CloudUpload
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -55,7 +53,6 @@ type UploadFormData = z.infer<typeof uploadFormSchema>;
 
 const Upload = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [videoProgress, setVideoProgress] = useState<UploadProgress | null>(null);
@@ -108,23 +105,16 @@ const Upload = () => {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith("video/")) {
-        toast({
-          title: "Invalid File",
-          description: "Please select a valid video file",
-          variant: "destructive",
-        });
+        toast.error("❌ Invalid File: Please select a valid video file");
         return;
       }
       if (file.size > 500 * 1024 * 1024) {
-        toast({
-          title: "File Too Large",
-          description: "Video file size must be less than 500MB",
-          variant: "destructive",
-        });
+        toast.error("❌ File Too Large: Video file size must be less than 500MB");
         return;
       }
       setVideoFile(file);
       setVideoProgress(null);
+      toast.success("✅ Video file selected successfully");
     }
   };
 
@@ -132,23 +122,16 @@ const Upload = () => {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith("image/")) {
-        toast({
-          title: "Invalid File",
-          description: "Please select a valid image file",
-          variant: "destructive",
-        });
+        toast.error("❌ Invalid File: Please select a valid image file");
         return;
       }
       if (file.size > 10 * 1024 * 1024) {
-        toast({
-          title: "File Too Large",
-          description: "Thumbnail file size must be less than 10MB",
-          variant: "destructive",
-        });
+        toast.error("❌ File Too Large: Thumbnail file size must be less than 10MB");
         return;
       }
       setThumbnailFile(file);
       setThumbnailProgress(null);
+      toast.success("✅ Thumbnail selected successfully");
     }
   };
 
@@ -170,15 +153,16 @@ const Upload = () => {
 
   const handleSubmit = async (data: UploadFormData) => {
     if (!videoFile) {
-      toast({
-        title: "Error",
-        description: "Please select a video file",
-        variant: "destructive",
-      });
+      toast.error("Please select a video file");
       return;
     }
 
     setIsUploading(true);
+    
+    // Show warning toast
+    toast.warning("⚠️ Upload in progress! Please don't leave this page until the upload is complete.", {
+      duration: 5000,
+    });
 
     try {
       const videoResult = await uploadToCloudinary(videoFile, "video", setVideoProgress);
@@ -200,21 +184,15 @@ const Upload = () => {
       const saveResponse = await apiClient.createVideo(videoData);
       
       if (saveResponse.success) {
-        toast({
-          title: "Success!",
-          description: "Video uploaded successfully! It's now pending review.",
-        });
+        toast.success("✅ Video uploaded successfully! It's now pending review.");
         navigate("/dashboard");
       } else {
         throw new Error(saveResponse.error || "Failed to save video");
       }
     } catch (error) {
       console.error("Upload error:", error);
-      toast({
-        title: "Upload Failed",
-        description: error instanceof Error ? error.message : "Failed to upload video. Please try again.",
-        variant: "destructive",
-      });
+      const errorMessage = error instanceof Error ? error.message : "Failed to upload video. Please try again.";
+      toast.error(`❌ Upload Failed: ${errorMessage}`);
     } finally {
       setIsUploading(false);
     }
@@ -248,14 +226,14 @@ const Upload = () => {
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
-              className="mb-6 p-4 bg-warning/10 border border-warning/30 rounded-2xl flex items-center gap-3"
+              className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl flex items-center gap-3"
             >
-              <div className="p-2 rounded-xl bg-warning/20">
-                <AlertTriangle className="w-5 h-5 text-warning" />
+              <div className="p-2 rounded-xl bg-yellow-500/20">
+                <AlertTriangle className="w-5 h-5 text-yellow-500" />
               </div>
               <div>
-                <p className="font-medium text-warning">Upload in progress</p>
-                <p className="text-sm text-muted-foreground">Please don't leave this page until the upload is complete.</p>
+                <p className="font-medium text-yellow-600 dark:text-yellow-500">Upload in progress</p>
+                <p className="text-sm text-yellow-700 dark:text-yellow-400">Please don't leave this page until the upload is complete.</p>
               </div>
             </motion.div>
           )}

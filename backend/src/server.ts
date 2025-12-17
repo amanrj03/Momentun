@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { config, validateConfig } from "./config";
+import "./lib/dbHealthCheck"; // Initialize database health check
 
 // Import routes
 import authRoutes from "./routes/auth";
@@ -59,12 +60,16 @@ app.use("/api/creators", creatorsRoutes);
 app.use("/api/admin", adminRoutes);
 
 // Health check
-app.get("/api/health", (req, res) => {
-  res.json({
-    success: true,
-    message: "Server is running",
+app.get("/api/health", async (req, res) => {
+  const { checkDatabaseConnection } = await import("./lib/dbHealthCheck");
+  const dbConnected = await checkDatabaseConnection();
+  
+  res.status(dbConnected ? 200 : 503).json({
+    success: dbConnected,
+    message: dbConnected ? "Server is running" : "Server is running but database is unavailable",
     timestamp: new Date().toISOString(),
     environment: config.NODE_ENV,
+    database: dbConnected ? "connected" : "disconnected",
   });
 });
 
@@ -72,29 +77,49 @@ app.get("/api/health", (req, res) => {
 // ERROR HANDLING
 // ==========================================
 
+import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
+
 // 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    error: "Endpoint not found",
-  });
-});
+app.use(notFoundHandler);
 
 // Global error handler
-app.use(
-  (
-    err: Error,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    console.error("Unhandled error:", err);
-    res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
-  }
-);
+app.use(errorHandler);
+
+// ==========================================
+// PROCESS ERROR HANDLERS
+// ==========================================
+
+// Handle uncaught exceptions
+process.on("uncaughtException", (error: Error) => {
+  console.error("💥 UNCAUGHT EXCEPTION! Shutting down gracefully...");
+  console.error(error.name, error.message);
+  console.error(error.stack);
+  
+  // Give time for logging before exit
+  setTimeout(() => {
+    process.exit(1);
+  }, 1000);
+});
+
+// Handle unhandled promise rejections
+process.on("unhandledRejection", (reason: any, promise: Promise<any>) => {
+  console.error("💥 UNHANDLED REJECTION! Server will continue running...");
+  console.error("Reason:", reason);
+  console.error("Promise:", promise);
+  // Don't exit - just log the error
+});
+
+// Handle SIGTERM
+process.on("SIGTERM", () => {
+  console.log("👋 SIGTERM received. Shutting down gracefully...");
+  process.exit(0);
+});
+
+// Handle SIGINT (Ctrl+C)
+process.on("SIGINT", () => {
+  console.log("👋 SIGINT received. Shutting down gracefully...");
+  process.exit(0);
+});
 
 // ==========================================
 // START SERVER
@@ -102,7 +127,7 @@ app.use(
 
 const PORT = config.PORT;
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`
 ╔════════════════════════════════════════════╗
 ║   Online Video Directory - Backend API     ║
@@ -113,5 +138,20 @@ app.listen(PORT, () => {
 ╚════════════════════════════════════════════╝
   `);
 });
+
+// Graceful shutdown
+const gracefulShutdown = () => {
+  console.log("Closing server gracefully...");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
+
+  // Force close after 10 seconds
+  setTimeout(() => {
+    console.error("Forcing server shutdown...");
+    process.exit(1);
+  }, 10000);
+};
 
 export default app;

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { apiClient } from "@/lib/api";
 import { Loader2, Mail, Edit } from "lucide-react";
 
@@ -21,7 +21,6 @@ export function OTPVerification({ email, role, registrationData, onBack }: OTPVe
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   // Countdown timer
   useEffect(() => {
@@ -77,11 +76,7 @@ export function OTPVerification({ email, role, registrationData, onBack }: OTPVe
     const otpCode = otp.join("");
     
     if (otpCode.length !== 6) {
-      toast({
-        title: "Invalid OTP",
-        description: "Please enter all 6 digits",
-        variant: "destructive",
-      });
+      toast.error("❌ Invalid OTP: Please enter all 6 digits");
       return;
     }
 
@@ -96,27 +91,16 @@ export function OTPVerification({ email, role, registrationData, onBack }: OTPVe
       });
 
       if (response.success) {
-        toast({
-          title: "Email verified successfully!",
-          description: "Your account has been created. You can now sign in.",
-        });
+        toast.success("✅ Email verified successfully! Your account has been created. You can now sign in.");
         navigate("/login");
       } else {
-        toast({
-          title: "Verification failed",
-          description: response.error || "Invalid OTP. Please try again.",
-          variant: "destructive",
-        });
+        toast.error(`❌ Verification failed: ${response.error || "Invalid OTP. Please try again."}`);
         // Clear OTP on error
         setOtp(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       }
     } catch (error) {
-      toast({
-        title: "Verification failed",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("❌ Verification failed: Something went wrong. Please try again.");
     } finally {
       setIsVerifying(false);
     }
@@ -129,26 +113,15 @@ export function OTPVerification({ email, role, registrationData, onBack }: OTPVe
       const response = await apiClient.resendOtp({ email, role });
 
       if (response.success) {
-        toast({
-          title: "OTP sent!",
-          description: "A new OTP has been sent to your email.",
-        });
+        toast.success("✅ OTP sent! A new OTP has been sent to your email.");
         setTimeLeft(300); // Reset timer
         setOtp(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       } else {
-        toast({
-          title: "Failed to resend OTP",
-          description: response.error || "Please try again later.",
-          variant: "destructive",
-        });
+        toast.error(`❌ Failed to resend OTP: ${response.error || "Please try again later."}`);
       }
     } catch (error) {
-      toast({
-        title: "Failed to resend OTP",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("❌ Failed to resend OTP: Something went wrong. Please try again.");
     } finally {
       setIsResending(false);
     }

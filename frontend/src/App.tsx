@@ -25,6 +25,7 @@ import WatchHistory from "./pages/WatchHistory";
 import LikedVideos from "./pages/LikedVideos";
 import SavedVideos from "./pages/SavedVideos";
 import CreatorProfile from "./pages/CreatorProfile";
+import VideoPlayerPage from "./pages/VideoPlayer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,9 @@ const App = () => (
             
             {/* Creator Profile - No Sidebar */}
             <Route path="/creator/:creatorId" element={<CreatorProfile />} />
+            
+            {/* Video Player - No Sidebar */}
+            <Route path="/video/:videoId" element={<VideoPlayerPage />} />
             
             {/* Other Pages - With Sidebar for non-admin users */}
             <Route element={<DashboardLayout />}>

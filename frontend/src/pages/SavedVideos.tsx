@@ -1,14 +1,12 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { VideoCard } from "@/components/video/VideoCard";
-import { VideoPlayer } from "@/components/video/VideoPlayer";
-import { Video } from "@/lib/types";
 import { Bookmark } from "lucide-react";
 import { useViewer } from "@/contexts/ViewerContext";
 
 const SavedVideos = () => {
-  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const navigate = useNavigate();
   const { savedVideos } = useViewer();
 
   return (
@@ -63,7 +61,7 @@ const SavedVideos = () => {
               >
                 <VideoCard
                   video={video}
-                  onClick={() => setSelectedVideo(video)}
+                  onClick={() => navigate(`/video/${video.id}`)}
                 />
               </motion.div>
             ))}
@@ -71,13 +69,7 @@ const SavedVideos = () => {
         )}
       </div>
 
-      {/* Video Player Modal */}
-      {selectedVideo && (
-        <VideoPlayer
-          video={selectedVideo}
-          onClose={() => setSelectedVideo(null)}
-        />
-      )}
+
     </div>
   );
 };

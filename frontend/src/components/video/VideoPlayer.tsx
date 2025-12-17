@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useViewer } from "@/contexts/ViewerContext";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface VideoPlayerProps {
   video: Video;
@@ -27,7 +27,6 @@ export function VideoPlayer({ video, onClose }: VideoPlayerProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isVideoLiked, isVideoSaved, toggleLike, toggleSave, addToWatchHistory, loadVideoStatus } = useViewer();
-  const { toast } = useToast();
 
   const isLiked = isVideoLiked(video.id);
   const isSaved = isVideoSaved(video.id);
@@ -147,18 +146,20 @@ export function VideoPlayer({ video, onClose }: VideoPlayerProps) {
 
   const handleLike = async () => {
     await toggleLike(video);
-    toast({
-      title: isLiked ? "Removed from liked videos" : "Added to liked videos",
-      description: isLiked ? "Video removed from your liked videos" : "Video added to your liked videos",
-    });
+    if (isLiked) {
+      toast.success("✅ Removed from liked videos");
+    } else {
+      toast.success("✅ Added to liked videos");
+    }
   };
 
   const handleSave = async () => {
     await toggleSave(video);
-    toast({
-      title: isSaved ? "Removed from saved videos" : "Added to saved videos",
-      description: isSaved ? "Video removed from your saved videos" : "Video added to your saved videos",
-    });
+    if (isSaved) {
+      toast.success("✅ Removed from saved videos");
+    } else {
+      toast.success("✅ Added to saved videos");
+    }
   };
 
   const creatorProfile = (video.uploader as any)?.creatorProfile || (video.uploader as any)?.profile;

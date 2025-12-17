@@ -357,6 +357,63 @@ router.delete(
 );
 
 // ==========================================
+// GET SINGLE VIDEO BY ID
+// ==========================================
+router.get("/:id", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const video = await prisma.video.findUnique({
+      where: { id },
+      include: {
+        uploader: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            creatorProfile: {
+              select: {
+                full_name: true,
+                channel_name: true,
+                avatar_url: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!video) {
+      return res.status(404).json({
+        success: false,
+        error: "Video not found",
+      });
+    }
+
+    // Only return approved videos for non-admin users
+    // Admin users can see all videos for review purposes
+    const isAdmin = req.user?.role === "ADMIN";
+    if (!isAdmin && video.status !== "APPROVED") {
+      return res.status(404).json({
+        success: false,
+        error: "Video not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: video,
+    });
+  } catch (error) {
+    console.error("Get video error:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to get video",
+    });
+  }
+});
+
+// ==========================================
 // INCREMENT VIDEO VIEWS
 // ==========================================
 router.post("/:id/view", async (req, res) => {

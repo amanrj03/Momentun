@@ -17,12 +17,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Video, VideoStatus } from "@/lib/types";
 import { Search, Upload, Filter, Loader2, Video as VideoIcon, Sparkles, Film } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const Content = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<VideoStatus | "ALL">("ALL");
   const [videos, setVideos] = useState<Video[]>([]);

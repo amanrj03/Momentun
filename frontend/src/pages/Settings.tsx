@@ -41,12 +41,12 @@ const SettingsContent = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+      toast.error("❌ Invalid File: Please select an image file");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size must be less than 5MB");
+      toast.error("❌ File Too Large: Image size must be less than 5MB");
       return;
     }
 
@@ -62,13 +62,13 @@ const SettingsContent = () => {
 
       if (response.success && response.data) {
         updateUser(response.data);
-        toast.success("Avatar updated successfully!");
+        toast.success("✅ Avatar updated successfully!");
       } else {
-        toast.error("Failed to update avatar");
+        toast.error("❌ Failed to update avatar");
       }
     } catch (error) {
       console.error("Avatar upload failed:", error);
-      toast.error("Failed to upload avatar. Please try again.");
+      toast.error("❌ Failed to upload avatar. Please try again.");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {

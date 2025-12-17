@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiClient } from "@/lib/api";
 import { Eye, EyeOff, Loader2, Shield, Mail, Lock, KeyRound } from "lucide-react";
@@ -38,7 +38,6 @@ export function SecuritySettings() {
   const [passwordData, setPasswordData] = useState<ChangePasswordInput | null>(null);
   
   const { user } = useAuth();
-  const { toast } = useToast();
 
   const form = useForm<ChangePasswordInput>({
     resolver: zodResolver(changePasswordSchema),
@@ -93,23 +92,12 @@ export function SecuritySettings() {
       if (response.success) {
         setShowOtpVerification(true);
         setTimeLeft(300);
-        toast({
-          title: "OTP sent!",
-          description: `We've sent a verification code to ${user?.email}`,
-        });
+        toast.success(`✅ OTP sent! We've sent a verification code to ${user?.email}`);
       } else {
-        toast({
-          title: "Failed to send OTP",
-          description: response.error || "Please try again later.",
-          variant: "destructive",
-        });
+        toast.error(`❌ Failed to send OTP: ${response.error || "Please try again later."}`);
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("❌ Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -119,11 +107,7 @@ export function SecuritySettings() {
     const otpCode = otp.join("");
     
     if (otpCode.length !== 6) {
-      toast({
-        title: "Invalid OTP",
-        description: "Please enter all 6 digits",
-        variant: "destructive",
-      });
+      toast.error("❌ Invalid OTP: Please enter all 6 digits");
       return;
     }
 
@@ -139,29 +123,18 @@ export function SecuritySettings() {
       });
 
       if (response.success) {
-        toast({
-          title: "Password changed successfully!",
-          description: "Your password has been updated.",
-        });
+        toast.success("✅ Password changed successfully! Your password has been updated.");
         
         form.reset();
         setShowOtpVerification(false);
         setOtp(["", "", "", "", "", ""]);
         setPasswordData(null);
       } else {
-        toast({
-          title: "Password change failed",
-          description: response.error || "Invalid OTP or current password.",
-          variant: "destructive",
-        });
+        toast.error(`❌ Password change failed: ${response.error || "Invalid OTP or current password."}`);
         setOtp(["", "", "", "", "", ""]);
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("❌ Something went wrong. Please try again.");
     } finally {
       setIsVerifyingOtp(false);
     }
@@ -174,25 +147,14 @@ export function SecuritySettings() {
       const response = await apiClient.sendPasswordChangeOtp();
 
       if (response.success) {
-        toast({
-          title: "OTP sent!",
-          description: "A new OTP has been sent to your email.",
-        });
+        toast.success("✅ OTP sent! A new OTP has been sent to your email.");
         setTimeLeft(300);
         setOtp(["", "", "", "", "", ""]);
       } else {
-        toast({
-          title: "Failed to resend OTP",
-          description: response.error || "Please try again later.",
-          variant: "destructive",
-        });
+        toast.error(`❌ Failed to resend OTP: ${response.error || "Please try again later."}`);
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("❌ Something went wrong. Please try again.");
     } finally {
       setIsResendingOtp(false);
     }

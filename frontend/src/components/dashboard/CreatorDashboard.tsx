@@ -21,7 +21,7 @@ import {
   Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 const CreatorDashboard = () => {
@@ -31,7 +31,6 @@ const CreatorDashboard = () => {
   const [creatorVideos, setCreatorVideos] = useState<any[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<VideoType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
 
   useEffect(() => {
     loadDashboardData();
@@ -79,11 +78,7 @@ const CreatorDashboard = () => {
       }
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load dashboard data",
-        variant: "destructive",
-      });
+      toast.error("❌ Failed to load dashboard data");
     } finally {
       setIsLoading(false);
     }

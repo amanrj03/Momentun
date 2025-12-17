@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { apiClient } from "@/lib/api";
 import { Loader2, Mail, KeyRound, ArrowLeft, Eye, EyeOff, Play, ArrowRight, Shield } from "lucide-react";
 
@@ -39,7 +39,6 @@ export default function ForgotPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const emailForm = useForm<EmailInput>({
     resolver: zodResolver(emailSchema),
@@ -74,23 +73,12 @@ export default function ForgotPassword() {
         setEmail(data.email);
         setCurrentStep("otp");
         setTimeLeft(300);
-        toast({
-          title: "OTP sent!",
-          description: `We've sent a verification code to ${data.email}`,
-        });
+        toast.success(`✅ OTP sent! We've sent a verification code to ${data.email}`);
       } else {
-        toast({
-          title: "Failed to send OTP",
-          description: response.error || "Please check your email and try again.",
-          variant: "destructive",
-        });
+        toast.error(`❌ Failed to send OTP: ${response.error || "Please check your email and try again."}`);
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("❌ Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -137,11 +125,7 @@ export default function ForgotPassword() {
     const otpCode = otp.join("");
     
     if (otpCode.length !== 6) {
-      toast({
-        title: "Invalid OTP",
-        description: "Please enter all 6 digits",
-        variant: "destructive",
-      });
+      toast.error("❌ Invalid OTP: Please enter all 6 digits");
       return;
     }
 
@@ -155,26 +139,15 @@ export default function ForgotPassword() {
 
       if (response.success) {
         setCurrentStep("password");
-        toast({
-          title: "OTP verified!",
-          description: "Now you can set a new password.",
-        });
+        toast.success("✅ OTP verified! Now you can set a new password.");
       } else {
-        toast({
-          title: "Verification failed",
-          description: response.error || "Invalid OTP. Please try again.",
-          variant: "destructive",
-        });
+        toast.error(`❌ Verification failed: ${response.error || "Invalid OTP. Please try again."}`);
         setOtp(["", "", "", "", "", ""]);
         const firstInput = document.getElementById("forgot-otp-0");
         firstInput?.focus();
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("❌ Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -191,24 +164,13 @@ export default function ForgotPassword() {
       });
 
       if (response.success) {
-        toast({
-          title: "Password reset successful!",
-          description: "You can now sign in with your new password.",
-        });
+        toast.success("✅ Password reset successful! You can now sign in with your new password.");
         navigate("/login");
       } else {
-        toast({
-          title: "Password reset failed",
-          description: response.error || "Please try again.",
-          variant: "destructive",
-        });
+        toast.error(`❌ Password reset failed: ${response.error || "Please try again."}`);
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("❌ Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -221,27 +183,16 @@ export default function ForgotPassword() {
       const response = await apiClient.sendForgotPasswordOtp({ email });
 
       if (response.success) {
-        toast({
-          title: "OTP sent!",
-          description: "A new OTP has been sent to your email.",
-        });
+        toast.success("✅ OTP sent! A new OTP has been sent to your email.");
         setTimeLeft(300);
         setOtp(["", "", "", "", "", ""]);
         const firstInput = document.getElementById("forgot-otp-0");
         firstInput?.focus();
       } else {
-        toast({
-          title: "Failed to resend OTP",
-          description: response.error || "Please try again later.",
-          variant: "destructive",
-        });
+        toast.error(`❌ Failed to resend OTP: ${response.error || "Please try again later."}`);
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("❌ Something went wrong. Please try again.");
     } finally {
       setIsResending(false);
     }

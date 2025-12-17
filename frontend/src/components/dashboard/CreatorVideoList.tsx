@@ -85,17 +85,17 @@ export function CreatorVideoList({ videos, onVideoUpdate, totalVideos = 0, isFil
       const response = await apiClient.deleteVideo(videoToDelete.id);
       
       if (response.success) {
-        toast.success("Video deleted successfully");
+        toast.success("✅ Video deleted successfully");
         // Call the update callback to refresh the video list
         if (onVideoUpdate) {
           onVideoUpdate();
         }
       } else {
-        toast.error(response.error || "Failed to delete video");
+        toast.error(`❌ ${response.error || "Failed to delete video"}`);
       }
     } catch (error) {
       console.error("Delete video error:", error);
-      toast.error("Failed to delete video");
+      toast.error("❌ Failed to delete video");
     } finally {
       setIsDeleting(false);
       setVideoToDelete(null);

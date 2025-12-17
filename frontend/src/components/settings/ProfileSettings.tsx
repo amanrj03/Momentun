@@ -74,13 +74,13 @@ export const ProfileSettings = ({ defaultValues }: ProfileSettingsProps) => {
       
       if (response.success && response.data) {
         updateUser(response.data);
-        toast.success("Profile updated successfully!");
+        toast.success("✅ Profile updated successfully!");
       } else {
-        toast.error("Failed to update profile");
+        toast.error("❌ Failed to update profile");
       }
     } catch (error) {
       console.error("Profile update failed:", error);
-      toast.error("Failed to update profile. Please try again.");
+      toast.error("❌ Failed to update profile. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
