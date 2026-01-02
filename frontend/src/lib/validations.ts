@@ -89,6 +89,28 @@ export const userLoginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+// Admin Profile Schema
+export const adminProfileSchema = z.object({
+  full_name: nameSchema,
+  employee_id: z
+    .string()
+    .max(50, "Employee ID must be less than 50 characters")
+    .optional()
+    .or(z.literal("")),
+  department: z
+    .string()
+    .max(100, "Department must be less than 100 characters")
+    .optional()
+    .or(z.literal("")),
+  phone_number: z
+    .string()
+    .max(20, "Phone number must be less than 20 characters")
+    .regex(/^[\d\s\-\+\(\)]*$/, "Please enter a valid phone number")
+    .optional()
+    .or(z.literal("")),
+  avatar_url: urlSchema,
+});
+
 // User Profile Schema
 export const userProfileSchema = z.object({
   full_name: nameSchema,
@@ -174,5 +196,6 @@ export type UserRegistration = z.infer<typeof userRegistrationSchema>;
 export type UserLogin = z.infer<typeof userLoginSchema>;
 export type UserProfile = z.infer<typeof userProfileSchema>;
 export type CreatorProfile = z.infer<typeof creatorProfileSchema>;
+export type AdminProfile = z.infer<typeof adminProfileSchema>;
 
 export type Video = z.infer<typeof videoSchema>;

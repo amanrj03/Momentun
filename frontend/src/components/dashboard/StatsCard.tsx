@@ -23,16 +23,19 @@ export const StatsCard = ({ title, value, change, icon: Icon, className, style }
       )}
       style={style}
     >
-      <div className="relative flex items-start justify-between">
-        <div className="space-y-3">
-          <p className="text-sm text-muted-foreground font-medium">{title}</p>
-          <p className="text-3xl font-display font-bold text-foreground tracking-tight">
-            {typeof value === "number" ? value.toLocaleString() : value}
-          </p>
-        </div>
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/10 flex items-center justify-center">
+      <div className="relative flex flex-col items-center justify-center text-center space-y-3 h-full">
+        {/* Icon at top */}
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/10 flex items-center justify-center">
           <Icon className="w-6 h-6 text-primary" />
         </div>
+        
+        {/* Title in middle */}
+        <p className="text-sm text-muted-foreground font-medium">{title}</p>
+        
+        {/* Count at bottom */}
+        <p className="text-3xl font-display font-bold text-foreground tracking-tight">
+          {typeof value === "number" ? value.toLocaleString() : value}
+        </p>
       </div>
     </div>
   );

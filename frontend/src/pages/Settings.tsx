@@ -182,14 +182,23 @@ const SettingsContent = () => {
               <ProfileSettings
                 defaultValues={{
                   full_name: profile?.full_name || "",
-                  bio: profile?.bio || "",
-                  country: profile?.country || "",
                   avatar_url: profile?.avatar_url || "",
                   ...(user.role === "CREATOR" && {
                     channel_name: profile?.channel_name || "",
+                    bio: profile?.bio || "",
+                    country: profile?.country || "",
                     linkedin_url: profile?.linkedin_url || "",
                     youtube_url: profile?.youtube_url || "",
                     website_url: profile?.website_url || "",
+                  }),
+                  ...(user.role === "ADMIN" && {
+                    employee_id: profile?.employee_id || "",
+                    department: profile?.department || "",
+                    phone_number: profile?.phone_number || "",
+                  }),
+                  ...(user.role === "VIEWER" && {
+                    bio: profile?.bio || "",
+                    country: profile?.country || "",
                   }),
                 }}
               />

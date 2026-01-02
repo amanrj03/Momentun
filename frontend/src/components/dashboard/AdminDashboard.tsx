@@ -315,16 +315,18 @@ const AdminDashboard = () => {
                   exit={{ opacity: 0, y: -20 }}
                   className="space-y-8"
                 >
-                  {/* Stats Grid - Merged into single box */}
+                  {/* Stats Grid - Merged into single box with dividers */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50"
+                    className="bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50 p-6"
                   >
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y-2 md:divide-y-0 md:divide-x-2 lg:divide-x-2 divide-border/50">
                       {stats.map((stat, index) => (
-                        <StatsCard key={stat.title} {...stat} />
+                        <div key={stat.title} className="relative">
+                          <StatsCard {...stat} />
+                        </div>
                       ))}
                     </div>
                   </motion.div>

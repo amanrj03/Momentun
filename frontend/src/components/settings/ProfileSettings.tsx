@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { userProfileSchema, creatorProfileSchema, type UserProfile, type CreatorProfile } from "@/lib/validations";
+import { userProfileSchema, creatorProfileSchema, adminProfileSchema, type UserProfile, type CreatorProfile, type AdminProfile } from "@/lib/validations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,7 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { apiClient } from "@/lib/api";
 
 interface ProfileSettingsProps {
-  defaultValues?: Partial<UserProfile | CreatorProfile>;
+  defaultValues?: Partial<UserProfile | CreatorProfile | AdminProfile>;
 }
 
 export const ProfileSettings = ({ defaultValues }: ProfileSettingsProps) => {
@@ -29,19 +29,36 @@ export const ProfileSettings = ({ defaultValues }: ProfileSettingsProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const isCreator = user?.role === "CREATOR";
+  const isAdmin = user?.role === "ADMIN";
   
-  const form = useForm<UserProfile | CreatorProfile>({
-    resolver: zodResolver(isCreator ? creatorProfileSchema : userProfileSchema),
+  // Choose the appropriate schema based on user role
+  const getSchema = () => {
+    if (isCreator) return creatorProfileSchema;
+    if (isAdmin) return adminProfileSchema;
+    return userProfileSchema;
+  };
+  
+  const form = useForm<UserProfile | CreatorProfile | AdminProfile>({
+    resolver: zodResolver(getSchema()),
     defaultValues: {
       full_name: "",
-      bio: "",
-      country: "",
       avatar_url: "",
       ...(isCreator && {
         channel_name: "",
+        bio: "",
+        country: "",
         linkedin_url: "",
         youtube_url: "",
         website_url: "",
+      }),
+      ...(isAdmin && {
+        employee_id: "",
+        department: "",
+        phone_number: "",
+      }),
+      ...(!isCreator && !isAdmin && {
+        bio: "",
+        country: "",
       }),
       ...defaultValues,
     },
@@ -59,7 +76,7 @@ export const ProfileSettings = ({ defaultValues }: ProfileSettingsProps) => {
     }
   }, [currentAvatarUrl, form]);
 
-  const handleSubmit = async (data: UserProfile | CreatorProfile) => {
+  const handleSubmit = async (data: UserProfile | CreatorProfile | AdminProfile) => {
     if (!user) return;
 
     setIsSubmitting(true);
@@ -150,27 +167,29 @@ export const ProfileSettings = ({ defaultValues }: ProfileSettingsProps) => {
             )}
           />
 
-          {/* Country */}
-          <FormField
-            control={form.control}
-            name="country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-accent" />
-                  Country
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Your country"
-                    className="bg-secondary/50 border-border/50 focus:border-primary rounded-xl h-11"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage className="text-destructive" />
-              </FormItem>
-            )}
-          />
+          {/* Country - Only show for viewers and creators */}
+          {!isAdmin && (
+            <FormField
+              control={form.control}
+              name="country"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-accent" />
+                    Country
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Your country"
+                      className="bg-secondary/50 border-border/50 focus:border-primary rounded-xl h-11"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-destructive" />
+                </FormItem>
+              )}
+            />
+          )}
 
           {/* Bio - Only show for creators and admins */}
           {user?.role !== "VIEWER" && (
@@ -197,6 +216,88 @@ export const ProfileSettings = ({ defaultValues }: ProfileSettingsProps) => {
                 </FormItem>
               )}
             />
+          )}
+
+          {/* Admin-specific fields */}
+          {isAdmin && (
+            <div className="space-y-6 pt-4 border-t border-border/50">
+              <h4 className="font-medium text-sm text-muted-foreground">Admin Information</h4>
+              
+              {/* Employee ID */}
+              <FormField
+                control={form.control}
+                name="employee_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-primary" />
+                      Employee ID
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Your employee ID"
+                        className="bg-secondary/50 border-border/50 focus:border-primary rounded-xl h-11"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      Your unique employee identifier (optional)
+                    </FormDescription>
+                    <FormMessage className="text-destructive" />
+                  </FormItem>
+                )}
+              />
+
+              {/* Department */}
+              <FormField
+                control={form.control}
+                name="department"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-accent" />
+                      Department
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Your department"
+                        className="bg-secondary/50 border-border/50 focus:border-primary rounded-xl h-11"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      Your work department (optional)
+                    </FormDescription>
+                    <FormMessage className="text-destructive" />
+                  </FormItem>
+                )}
+              />
+
+              {/* Phone Number */}
+              <FormField
+                control={form.control}
+                name="phone_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-primary" />
+                      Phone Number
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Your phone number"
+                        className="bg-secondary/50 border-border/50 focus:border-primary rounded-xl h-11"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-xs">
+                      Your contact phone number (optional)
+                    </FormDescription>
+                    <FormMessage className="text-destructive" />
+                  </FormItem>
+                )}
+              />
+            </div>
           )}
 
           {/* Creator-specific fields */}
